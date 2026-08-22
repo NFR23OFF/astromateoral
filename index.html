@@ -138,6 +138,7 @@ header h1 {
     font-weight: 600;
     display: flex;
     gap: 15px;
+    flex-wrap: wrap;
 }
 
 .question-text {
@@ -231,36 +232,36 @@ header h1 {
 
 <div class="main-layout">
 
-<div class="sidebar-controls">
-<div class="control-panel">
-<h3>Syllabus Relational Filters</h3>
+    <div class="sidebar-controls">
+        <div class="control-panel">
+            <h3>Syllabus Relational Filters</h3>
 
-<div class="directory-box">
-<label>Filter by Surveyor</label>
-<select id="surveyorSelect" class="directory-select" onchange="runGlobalPipeline()">
-    <option value="all">All Surveyors</option>
-</select>
-</div>
+            <div class="directory-box">
+                <label>Filter by Surveyor</label>
+                <select id="surveyorSelect" class="directory-select" onchange="runGlobalPipeline()">
+                    <option value="all">All Surveyors</option>
+                </select>
+            </div>
 
-<div class="directory-box">
-<label>Filter by Function</label>
-<select id="functionSelect" class="directory-select" onchange="runGlobalPipeline()">
-    <option value="all">All Functions</option>
-</select>
-</div>
+            <div class="directory-box">
+                <label>Filter by Function</label>
+                <select id="functionSelect" class="directory-select" onchange="runGlobalPipeline()">
+                    <option value="all">All Functions</option>
+                </select>
+            </div>
 
-<div class="search-box">
-<input type="text" id="searchInput" placeholder="Search questions..." onkeyup="runGlobalPipeline()">
-</div>
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Search questions..." onkeyup="runGlobalPipeline()">
+            </div>
 
-</div>
-</div>
+        </div>
+    </div>
 
-<div class="content-area">
-<div id="loadingMsg" class="loading">⏳ Loading questions...</div>
-<div id="stats" class="stats" style="display:none;"></div>
-<div id="questionsContainer"></div>
-</div>
+    <div class="content-area">
+        <div id="loadingMsg" class="loading">⏳ Loading questions...</div>
+        <div id="stats" class="stats" style="display:none;"></div>
+        <div id="questionsContainer"></div>
+    </div>
 
 </div>
 
@@ -286,6 +287,7 @@ function parseCSV(text) {
     const headers = lines[0].split(',').map(h => h.trim());
 
     for (let i = 1; i < lines.length; i++) {
+        if (!lines[i].trim()) continue;
         const values = parseCSVLine(lines[i]);
         const q = {};
         headers.forEach((h, idx) => q[h] = values[idx] || "");
@@ -320,6 +322,13 @@ function parseCSVLine(line) {
     return result;
 }
 
+function cleanSurveyorName(name) {
+    return name
+        .toLowerCase()
+        .replace("capt.", "")
+        .trim();
+}
+
 function populateSurveyorDropdown() {
     const dropdown = document.getElementById('surveyorSelect');
     const uniqueSurveyors = [...new Set(allQuestions.map(q => q['Surveyor_Name']))];
@@ -327,8 +336,8 @@ function populateSurveyorDropdown() {
     uniqueSurveyors.forEach(name => {
         if (name && name.trim() !== "") {
             const option = document.createElement('option');
-            option.value = name.toLowerCase();
-            option.textContent = name;
+            option.value = cleanSurveyorName(name);   // cleaned value for matching
+            option.textContent = name;                // original display (Capt. ...)
             dropdown.appendChild(option);
         }
     });
@@ -357,15 +366,17 @@ function runGlobalPipeline() {
         let match = true;
 
         if (surveyor !== 'all') {
-            match = match && q['Surveyor_Name'].toLowerCase().includes(surveyor);
+            const cleaned = cleanSurveyorName(q['Surveyor_Name'] || "");
+            match = match && cleaned.includes(surveyor);
         }
 
         if (func !== 'all') {
-            match = match && q['Function_Number'].toLowerCase().includes(func);
+            const fn = (q['Function_Number'] || "").toLowerCase();
+            match = match && fn.includes(func);
         }
 
         if (search) {
-            const combined = (q['Question'] + " " + q['Expected_Answer']).toLowerCase();
+            const combined = ((q['Question'] || "") + " " + (q['Expected_Answer'] || "")).toLowerCase();
             match = match && combined.includes(search);
         }
 
@@ -389,8 +400,9 @@ function displayQuestions(list) {
         <div class="card">
             <div class="meta-info">
                 <span>Q${i + 1}</span>
-                <span>${q['Function_Number']}</span>
-                <span>${q['MMD_Center']}</span>
+                ${q['Function_Number'] ? `<span>${q['Function_Number']}</span>` : ''}
+                ${q['MMD_Center'] ? `<span>${q['MMD_Center']}</span>` : ''}
+                ${q['Surveyor_Name'] ? `<span>${q['Surveyor_Name']}</span>` : ''}
             </div>
 
             <div class="question-text">${q['Question']}</div>
@@ -399,7 +411,7 @@ function displayQuestions(list) {
 
             <div class="answer-box">
                 <div class="answer-title">✓ Answer:</div>
-                <div class="answer-content">${q['Expected_Answer']}</div>
+                <div class="answer-content">${q['Expected_Answer'] || 'No answer provided'}</div>
 
                 ${q['Fail_Trigger'] ? `<div class="fail-box"><strong>Fail Trigger:</strong> ${q['Fail_Trigger']}</div>` : ''}
 
