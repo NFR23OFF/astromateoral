@@ -44,7 +44,6 @@
             text-transform: uppercase; 
             letter-spacing: 2px;
         }
-        
         .main-layout {
             max-width: 1200px;
             margin: 0 auto;
@@ -63,7 +62,6 @@
                 height: max-content;
             }
         }
-
         .control-panel {
             background: var(--card-bg);
             border-radius: 12px;
@@ -79,7 +77,9 @@
             border-bottom: 1px solid #233554;
             padding-bottom: 8px;
         }
-
+        .directory-box {
+            margin-bottom: 15px;
+        }
         .directory-box label { 
             display: block; 
             color: var(--white); 
@@ -96,13 +96,8 @@
             color: var(--white); 
             font-size: 14px; 
             outline: none; 
-            margin-bottom: 15px; 
             cursor: pointer; 
         }
-        .directory-select:focus {
-            border-color: var(--accent);
-        }
-
         .search-box { margin-bottom: 20px; }
         .search-box input { 
             width: 100%; 
@@ -140,7 +135,6 @@
             background: var(--card-bg);
             color: var(--accent);
         }
-
         .filter-group {
             display: flex;
             flex-wrap: wrap;
@@ -158,33 +152,8 @@
             transition: 0.2s; 
             font-size: 11px; 
         }
-        .filter-chip.active, .filter-chip:hover { border-color: var(--accent); color: var(--accent); background: rgba(100, 255, 218, 0.05); }
+        .filter-chip.active { border-color: var(--accent); color: var(--accent); background: rgba(100, 255, 218, 0.05); }
         
-        .stats-banner {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        .stat-box {
-            background: var(--card-bg);
-            border: 1px solid #233554;
-            border-radius: 8px;
-            padding: 12px;
-            text-align: center;
-        }
-        .stat-val {
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--accent);
-        }
-        .stat-lbl {
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-top: 4px;
-        }
-
         .card { 
             background: var(--card-bg); 
             border-radius: 12px; 
@@ -193,7 +162,6 @@
             box-shadow: 0 10px 30px -15px rgba(2,12,27,0.7); 
             border-top: 4px solid #233554; 
             position: relative; 
-            transition: 0.3s; 
         }
         .card.hot { border-top-color: #ff4d4d; }
         .card.hot::after { 
@@ -206,7 +174,6 @@
             font-weight: bold; 
             letter-spacing: 1px; 
         }
-        
         .meta-info { 
             font-size: 11px; 
             color: var(--accent); 
@@ -215,7 +182,6 @@
             text-transform: uppercase; 
             letter-spacing: 1px; 
             display: flex;
-            flex-wrap: wrap;
             gap: 15px;
         }
         .question-text { font-size: 16px; font-weight: 600; color: var(--white); margin-bottom: 18px; line-height: 1.5; }
@@ -230,7 +196,6 @@
             cursor: pointer; 
             width: 100%; 
             font-size: 13px; 
-            transition: 0.3s; 
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
@@ -274,50 +239,11 @@
             font-weight: 600; 
             border: 1px solid #233554; 
         }
-
-        /* FAQ Styling System */
-        .faq-container {
-            display: none;
-        }
-        .faq-item {
-            background: var(--card-bg);
-            border: 1px solid #233554;
-            border-radius: 8px;
-            margin-bottom: 12px;
-            overflow: hidden;
-        }
-        .faq-trigger {
-            padding: 18px 20px;
-            color: var(--white);
-            font-weight: 600;
-            font-size: 15px;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #112240;
-            user-select: none;
-        }
-        .faq-trigger:hover {
-            background: #172a45;
-        }
-        .faq-content {
-            display: none;
-            padding: 20px;
-            border-top: 1px solid #233554;
-            font-size: 14px;
-            line-height: 1.6;
-            background: rgba(2, 12, 27, 0.3);
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 40px;
-            background: var(--card-bg);
-            border-radius: 12px;
-            border: 1px dashed #233554;
-            display: none;
-        }
+        .faq-container { display: none; }
+        .faq-item { background: var(--card-bg); border: 1px solid #233554; border-radius: 8px; margin-bottom: 12px; overflow: hidden; }
+        .faq-trigger { padding: 18px 20px; color: var(--white); font-weight: 600; font-size: 15px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: #112240; }
+        .faq-content { display: none; padding: 20px; border-top: 1px solid #233554; font-size: 14px; line-height: 1.6; background: rgba(2, 12, 27, 0.3); }
+        .empty-state { text-align: center; padding: 40px; background: var(--card-bg); border-radius: 12px; border: 1px dashed #233554; display: none; }
     </style>
 </head>
 <body>
@@ -335,3 +261,24 @@
                 
                 <div class="directory-box">
                     <label for="surveyorSelect">Filter by Target Surveyor</label>
+                    <select id="surveyorSelect" class="directory-select" onchange="runGlobalPipeline()">
+                        <option value="all">All Surveyors</option>
+                        <option value="Nitin Mukesh">Capt. Nitin Mukesh / Capt. SB Kumar</option>
+                        <option value="Hemant Jarwal">Capt. Hemant Jarwal / Capt. Panigrahi</option>
+                        <option value="Daniel Joseph">Capt. Daniel Joseph / Capt. Pramod Sharda</option>
+                        <option value="Ravi Singh">Capt. Ravi Singh Sikarwar / Capt. V. K. Sood</option>
+                        <option value="Poswal">Capt. R. Poswal / Capt. N. Nayar</option>
+                    </select>
+                </div>
+
+                <div class="directory-box">
+                    <label for="functionSelect">Filter by Exam Function</label>
+                    <select id="functionSelect" class="directory-select" onchange="runGlobalPipeline()">
+                        <option value="all">All Functions</option>
+                        <option value="F1">Function 1 (Navigation / ROR)</option>
+                        <option value="F2">Function 2 (Cargo Ops / Stability)</option>
+                        <option value="F3">Function 3 (Legislation / Safety)</option>
+                    </select>
+                </div>
+            </div>
+
