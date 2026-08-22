@@ -207,6 +207,7 @@
             border-top: 1px solid #233554; 
             padding-top: 20px; 
         }
+        .answer-box.show { display: block; }
         .answer-title { font-weight: bold; color: var(--accent); margin-bottom: 8px; font-size: 12px; letter-spacing: 0.5px; text-transform: uppercase; }
         .answer-content { font-size: 14.5px; line-height: 1.6; color: var(--text); }
         
@@ -239,11 +240,9 @@
             font-weight: 600; 
             border: 1px solid #233554; 
         }
-        .faq-container { display: none; }
-        .faq-item { background: var(--card-bg); border: 1px solid #233554; border-radius: 8px; margin-bottom: 12px; overflow: hidden; }
-        .faq-trigger { padding: 18px 20px; color: var(--white); font-weight: 600; font-size: 15px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: #112240; }
-        .faq-content { display: none; padding: 20px; border-top: 1px solid #233554; font-size: 14px; line-height: 1.6; background: rgba(2, 12, 27, 0.3); }
-        .empty-state { text-align: center; padding: 40px; background: var(--card-bg); border-radius: 12px; border: 1px dashed #233554; display: none; }
+        .empty-state { text-align: center; padding: 40px; background: var(--card-bg); border-radius: 12px; border: 1px dashed #233554; }
+        .loading { text-align: center; padding: 40px; color: var(--accent); }
+        .questions-container { width: 100%; }
     </style>
 </head>
 <body>
@@ -280,5 +279,159 @@
                         <option value="F3">Function 3 (Legislation / Safety)</option>
                     </select>
                 </div>
-            </div>
 
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="Search questions..." onkeyup="runGlobalPipeline()">
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="content-area">
+            <div id="loadingMsg" class="loading">Loading questions...</div>
+            <div id="questionsContainer" class="questions-container"></div>
+            <div id="emptyState" class="empty-state" style="display:none;">No questions found. Try adjusting your filters.</div>
+        </div>
+    </div>
+
+    <script>
+        let allQuestions = [];
+
+        // Load CSV data
+        async function loadCSV() {
+            try {
+                const response = await fetch('database.csv');
+                const text = await response.text();
+                parseCSV(text);
+                runGlobalPipeline();
+            } catch (error) {
+                console.error('Error loading CSV:', error);
+                document.getElementById('loadingMsg').textContent = 'Error loading questions. Please refresh.';
+            }
+        }
+
+        // Parse CSV data
+        function parseCSV(text) {
+            const lines = text.trim().split('\n');
+            const headers = lines[0].split(',').map(h => h.trim());
+            
+            for (let i = 1; i < lines.length; i++) {
+                if (!lines[i].trim()) continue;
+                
+                // Handle CSV with possible quoted fields
+                const values = parseCSVLine(lines[i]);
+                
+                if (values.length >= headers.length) {
+                    const question = {};
+                    headers.forEach((header, index) => {
+                        question[header] = values[index] ? values[index].trim() : '';
+                    });
+                    allQuestions.push(question);
+                }
+            }
+            
+            console.log(`Loaded ${allQuestions.length} questions`);
+        }
+
+        // Helper to parse CSV lines with quoted fields
+        function parseCSVLine(line) {
+            const result = [];
+            let current = '';
+            let insideQuotes = false;
+            
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                const nextChar = line[i + 1];
+                
+                if (char === '"') {
+                    if (insideQuotes && nextChar === '"') {
+                        current += '"';
+                        i++;
+                    } else {
+                        insideQuotes = !insideQuotes;
+                    }
+                } else if (char === ',' && !insideQuotes) {
+                    result.push(current);
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            result.push(current);
+            return result;
+        }
+
+        // Filter and display questions
+        function runGlobalPipeline() {
+            const surveyor = document.getElementById('surveyorSelect').value;
+            const func = document.getElementById('functionSelect').value;
+            const search = document.getElementById('searchInput').value.toLowerCase();
+
+            let filtered = allQuestions.filter(q => {
+                let match = true;
+
+                if (surveyor !== 'all') {
+                    match = match && (q['Surveyor'] && q['Surveyor'].includes(surveyor));
+                }
+
+                if (func !== 'all') {
+                    match = match && (q['Function'] && q['Function'].includes(func));
+                }
+
+                if (search) {
+                    const searchFields = (q['Question'] || '') + ' ' + (q['Answer'] || '') + ' ' + (q['Topic'] || '');
+                    match = match && searchFields.toLowerCase().includes(search);
+                }
+
+                return match;
+            });
+
+            displayQuestions(filtered);
+        }
+
+        // Display questions as cards
+        function displayQuestions(questions) {
+            const container = document.getElementById('questionsContainer');
+            const emptyState = document.getElementById('emptyState');
+            const loadingMsg = document.getElementById('loadingMsg');
+
+            loadingMsg.style.display = 'none';
+
+            if (questions.length === 0) {
+                container.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            container.innerHTML = questions.map((q, index) => `
+                <div class="card ${q['Safety-Critical'] === 'Yes' ? 'hot' : ''}">
+                    <div class="meta-info">
+                        <span>Q#${index + 1}</span>
+                        ${q['Function'] ? `<span>${q['Function']}</span>` : ''}
+                        ${q['Topic'] ? `<span>${q['Topic']}</span>` : ''}
+                        ${q['Surveyor'] ? `<span>${q['Surveyor']}</span>` : ''}
+                    </div>
+                    <div class="question-text">${q['Question'] || 'No question text'}</div>
+                    <button class="action-btn" onclick="toggleAnswer(this)">Show Answer</button>
+                    <div class="answer-box">
+                        <div class="answer-title">Answer:</div>
+                        <div class="answer-content">${q['Answer'] || 'No answer provided'}</div>
+                        ${q['Notes'] ? `<div class="fail-box"><strong>Additional Notes:</strong>${q['Notes']}</div>` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Toggle answer visibility
+        function toggleAnswer(button) {
+            const answerBox = button.nextElementSibling;
+            answerBox.classList.toggle('show');
+            button.textContent = answerBox.classList.contains('show') ? 'Hide Answer' : 'Show Answer';
+        }
+
+        // Load on page load
+        window.addEventListener('DOMContentLoaded', loadCSV);
+    </script>
+</body>
+</html>
