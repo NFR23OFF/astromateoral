@@ -13,6 +13,7 @@
     --white: #e6f1ff;
     --card-bg: #112240;
     --dark-blue: #020c1b;
+    --danger: #ff4d4d;
 }
 
 body {
@@ -21,7 +22,7 @@ body {
     margin: 0;
     padding: 0;
     color: var(--text);
-    padding-bottom: 60px;
+    padding-bottom: 80px;
 }
 
 header {
@@ -129,6 +130,25 @@ header h1 {
     margin-bottom: 20px;
     box-shadow: 0 10px 30px -15px rgba(2,12,27,0.7);
     border-top: 4px solid #233554;
+    position: relative;
+}
+
+.card.trending {
+    border-top-color: var(--accent);
+}
+
+.trending-badge {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: rgba(100,255,218,0.1);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    font-size: 10px;
+    padding: 4px 8px;
+    border-radius: 999px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 .meta-info {
@@ -137,7 +157,7 @@ header h1 {
     margin-bottom: 12px;
     font-weight: 600;
     display: flex;
-    gap: 15px;
+    gap: 10px;
     flex-wrap: wrap;
 }
 
@@ -186,7 +206,7 @@ header h1 {
 
 .fail-box {
     background: rgba(255, 77, 77, 0.07);
-    border: 1px solid #ff4d4d;
+    border: 1px solid var(--danger);
     color: #ff6b6b;
     padding: 14px;
     border-radius: 6px;
@@ -220,6 +240,105 @@ header h1 {
     font-size: 12px;
     margin-bottom: 15px;
 }
+
+/* Bottom nav for modes */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #020c1b;
+    border-top: 1px solid #233554;
+    display: flex;
+    justify-content: space-around;
+    padding: 8px 0;
+    z-index: 50;
+}
+
+.bottom-nav button {
+    background: transparent;
+    border: none;
+    color: var(--text);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 6px 10px;
+}
+
+.bottom-nav button.active {
+    color: var(--accent);
+}
+
+/* Tag buttons */
+.tag-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+}
+
+.tag-btn {
+    border-radius: 999px;
+    border: 1px solid #233554;
+    background: #020c1b;
+    color: var(--text);
+    font-size: 11px;
+    padding: 4px 10px;
+    cursor: pointer;
+}
+
+.tag-btn.active-bookmark {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.tag-btn.active-weak {
+    border-color: var(--danger);
+    color: var(--danger);
+}
+
+.tag-btn.active-strong {
+    border-color: #4caf50;
+    color: #4caf50;
+}
+
+/* Surveyor profile modal */
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(2,12,27,0.8);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+}
+
+.modal {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 20px;
+    max-width: 420px;
+    width: 90%;
+    border: 1px solid #233554;
+}
+
+.modal h3 {
+    margin-top: 0;
+    color: var(--white);
+}
+
+.modal-close {
+    text-align: right;
+    margin-bottom: 10px;
+}
+
+.modal-close button {
+    background: transparent;
+    border: none;
+    color: var(--text);
+    cursor: pointer;
+    font-size: 12px;
+}
 </style>
 </head>
 
@@ -250,10 +369,26 @@ header h1 {
                 </select>
             </div>
 
+            <div class="directory-box">
+                <label>Filter by Tag</label>
+                <select id="tagFilterSelect" class="directory-select" onchange="runGlobalPipeline()">
+                    <option value="none">No Tag Filter</option>
+                    <option value="bookmark">Bookmarked</option>
+                    <option value="weak">Weak</option>
+                    <option value="strong">Strong</option>
+                </select>
+            </div>
+
             <div class="search-box">
                 <input type="text" id="searchInput" placeholder="Search questions..." onkeyup="runGlobalPipeline()">
             </div>
 
+        </div>
+
+        <div class="control-panel">
+            <h3>Smart Modes</h3>
+            <button class="action-btn" onclick="startDaily20()">🎯 Daily 20 Questions</button>
+            <button class="action-btn" style="margin-top:10px;" onclick="startMockViva()">🎤 Start Mock Viva</button>
         </div>
     </div>
 
@@ -265,170 +400,32 @@ header h1 {
 
 </div>
 
+<!-- Bottom nav -->
+<div class="bottom-nav">
+    <button id="modeAllBtn" class="active" onclick="setMode('all')">All Questions</button>
+    <button id="modeDailyBtn" onclick="setMode('daily')">Daily 20</button>
+    <button id="modeVivaBtn" onclick="setMode('viva')">Mock Viva</button>
+</div>
+
+<!-- Surveyor profile modal -->
+<div id="modalBackdrop" class="modal-backdrop">
+    <div class="modal">
+        <div class="modal-close">
+            <button onclick="closeSurveyorModal()">✕ Close</button>
+        </div>
+        <h3 id="modalSurveyorName">Surveyor</h3>
+        <p id="modalSurveyorCenter"></p>
+        <p id="modalSurveyorStats"></p>
+        <ul id="modalSurveyorFunctions"></ul>
+    </div>
+</div>
+
 <script>
 let allQuestions = [];
+let currentMode = 'all'; // 'all' | 'daily' | 'viva'
+let dailyQuestions = [];
+let vivaIndex = 0;
 
-async function loadCSV() {
-    try {
-        const csvUrl = 'https://raw.githubusercontent.com/NFR23OFF/astromateoral/main/database.csv';
-        const response = await fetch(csvUrl);
-        const text = await response.text();
-        parseCSV(text);
-        populateSurveyorDropdown();
-        populateFunctionDropdown();
-        runGlobalPipeline();
-    } catch (error) {
-        document.getElementById('loadingMsg').innerHTML = "❌ Error loading CSV";
-    }
-}
-
-function parseCSV(text) {
-    const lines = text.trim().split('\n');
-    const headers = lines[0].split(',').map(h => h.trim());
-
-    for (let i = 1; i < lines.length; i++) {
-        if (!lines[i].trim()) continue;
-        const values = parseCSVLine(lines[i]);
-        const q = {};
-        headers.forEach((h, idx) => q[h] = values[idx] || "");
-        if (q['Question']) allQuestions.push(q);
-    }
-}
-
-function parseCSVLine(line) {
-    const result = [];
-    let current = '';
-    let insideQuotes = false;
-
-    for (let i = 0; i < line.length; i++) {
-        const char = line[i];
-        const next = line[i + 1];
-
-        if (char === '"') {
-            if (insideQuotes && next === '"') {
-                current += '"';
-                i++;
-            } else {
-                insideQuotes = !insideQuotes;
-            }
-        } else if (char === ',' && !insideQuotes) {
-            result.push(current);
-            current = '';
-        } else {
-            current += char;
-        }
-    }
-    result.push(current);
-    return result;
-}
-
-function cleanSurveyorName(name) {
-    return name
-        .toLowerCase()
-        .replace("capt.", "")
-        .trim();
-}
-
-function populateSurveyorDropdown() {
-    const dropdown = document.getElementById('surveyorSelect');
-    const uniqueSurveyors = [...new Set(allQuestions.map(q => q['Surveyor_Name']))];
-
-    uniqueSurveyors.forEach(name => {
-        if (name && name.trim() !== "") {
-            const option = document.createElement('option');
-            option.value = cleanSurveyorName(name);   // cleaned value for matching
-            option.textContent = name;                // original display (Capt. ...)
-            dropdown.appendChild(option);
-        }
-    });
-}
-
-function populateFunctionDropdown() {
-    const dropdown = document.getElementById('functionSelect');
-    const uniqueFunctions = [...new Set(allQuestions.map(q => q['Function_Number']))];
-
-    uniqueFunctions.forEach(func => {
-        if (func && func.trim() !== "") {
-            const option = document.createElement('option');
-            option.value = func.toLowerCase();
-            option.textContent = func;
-            dropdown.appendChild(option);
-        }
-    });
-}
-
-function runGlobalPipeline() {
-    const surveyor = document.getElementById('surveyorSelect').value.toLowerCase();
-    const func = document.getElementById('functionSelect').value.toLowerCase();
-    const search = document.getElementById('searchInput').value.toLowerCase();
-
-    let filtered = allQuestions.filter(q => {
-        let match = true;
-
-        if (surveyor !== 'all') {
-            const cleaned = cleanSurveyorName(q['Surveyor_Name'] || "");
-            match = match && cleaned.includes(surveyor);
-        }
-
-        if (func !== 'all') {
-            const fn = (q['Function_Number'] || "").toLowerCase();
-            match = match && fn.includes(func);
-        }
-
-        if (search) {
-            const combined = ((q['Question'] || "") + " " + (q['Expected_Answer'] || "")).toLowerCase();
-            match = match && combined.includes(search);
-        }
-
-        return match;
-    });
-
-    displayQuestions(filtered);
-}
-
-function displayQuestions(list) {
-    const container = document.getElementById('questionsContainer');
-    const stats = document.getElementById('stats');
-    const loading = document.getElementById('loadingMsg');
-
-    loading.style.display = 'none';
-
-    stats.style.display = 'block';
-    stats.textContent = `📊 Showing ${list.length} of ${allQuestions.length} questions`;
-
-    container.innerHTML = list.map((q, i) => `
-        <div class="card">
-            <div class="meta-info">
-                <span>Q${i + 1}</span>
-                ${q['Function_Number'] ? `<span>${q['Function_Number']}</span>` : ''}
-                ${q['MMD_Center'] ? `<span>${q['MMD_Center']}</span>` : ''}
-                ${q['Surveyor_Name'] ? `<span>${q['Surveyor_Name']}</span>` : ''}
-            </div>
-
-            <div class="question-text">${q['Question']}</div>
-
-            <button class="action-btn" onclick="toggleAnswer(this)">▼ Show Answer</button>
-
-            <div class="answer-box">
-                <div class="answer-title">✓ Answer:</div>
-                <div class="answer-content">${q['Expected_Answer'] || 'No answer provided'}</div>
-
-                ${q['Fail_Trigger'] ? `<div class="fail-box"><strong>Fail Trigger:</strong> ${q['Fail_Trigger']}</div>` : ''}
-
-                ${q['Reg_Source'] ? `<div class="reg-badge">Source: ${q['Reg_Source']}</div>` : ''}
-            </div>
-        </div>
-    `).join('');
-}
-
-function toggleAnswer(btn) {
-    const box = btn.nextElementSibling;
-    box.classList.toggle('show');
-    btn.textContent = box.classList.contains('show') ? "▲ Hide Answer" : "▼ Show Answer";
-}
-
-window.addEventListener('DOMContentLoaded', loadCSV);
-</script>
-
-</body>
-</html>
+// Tag storage (simple in-memory for now; can move to localStorage later)
+let tags = {
+    bookmark
