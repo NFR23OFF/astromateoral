@@ -183,6 +183,7 @@
             letter-spacing: 1px; 
             display: flex;
             gap: 15px;
+            flex-wrap: wrap;
         }
         .question-text { font-size: 16px; font-weight: 600; color: var(--white); margin-bottom: 18px; line-height: 1.5; }
         
@@ -243,6 +244,15 @@
         .empty-state { text-align: center; padding: 40px; background: var(--card-bg); border-radius: 12px; border: 1px dashed #233554; }
         .loading { text-align: center; padding: 40px; color: var(--accent); }
         .questions-container { width: 100%; }
+        .stats { 
+            background: rgba(100, 255, 218, 0.1); 
+            border: 1px solid #233554; 
+            color: var(--accent); 
+            padding: 10px 15px; 
+            border-radius: 6px; 
+            font-size: 12px; 
+            margin-bottom: 15px;
+        }
     </style>
 </head>
 <body>
@@ -262,11 +272,11 @@
                     <label for="surveyorSelect">Filter by Target Surveyor</label>
                     <select id="surveyorSelect" class="directory-select" onchange="runGlobalPipeline()">
                         <option value="all">All Surveyors</option>
-                        <option value="Nitin Mukesh">Capt. Nitin Mukesh / Capt. SB Kumar</option>
-                        <option value="Hemant Jarwal">Capt. Hemant Jarwal / Capt. Panigrahi</option>
-                        <option value="Daniel Joseph">Capt. Daniel Joseph / Capt. Pramod Sharda</option>
-                        <option value="Ravi Singh">Capt. Ravi Singh Sikarwar / Capt. V. K. Sood</option>
-                        <option value="Poswal">Capt. R. Poswal / Capt. N. Nayar</option>
+                        <option value="Nitin Mukesh">Capt. Nitin Mukesh</option>
+                        <option value="Hemant Jarwal">Capt. Hemant Jarwal</option>
+                        <option value="Daniel Joseph">Capt. Daniel Joseph</option>
+                        <option value="Ravi Singh">Capt. Ravi Singh</option>
+                        <option value="Poswal">Capt. R. Poswal</option>
                     </select>
                 </div>
 
@@ -288,7 +298,8 @@
 
         <!-- Main Content Area -->
         <div class="content-area">
-            <div id="loadingMsg" class="loading">Loading questions...</div>
+            <div id="loadingMsg" class="loading">⏳ Loading questions...</div>
+            <div id="stats" class="stats" style="display:none;"></div>
             <div id="questionsContainer" class="questions-container"></div>
             <div id="emptyState" class="empty-state" style="display:none;">No questions found. Try adjusting your filters.</div>
         </div>
@@ -297,40 +308,54 @@
     <script>
         let allQuestions = [];
 
-        // Load CSV data
+        // Load CSV data from raw GitHub URL
         async function loadCSV() {
             try {
-                const response = await fetch('database.csv');
+                const csvUrl = 'https://raw.githubusercontent.com/NFR23OFF/astromateoral/main/database.csv';
+                const response = await fetch(csvUrl);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
                 const text = await response.text();
                 parseCSV(text);
                 runGlobalPipeline();
             } catch (error) {
                 console.error('Error loading CSV:', error);
-                document.getElementById('loadingMsg').textContent = 'Error loading questions. Please refresh.';
+                document.getElementById('loadingMsg').innerHTML = `
+                    <div style="color: #ff4d4d;">
+                        ❌ Error loading questions.<br>
+                        <small>${error.message}</small>
+                    </div>
+                `;
             }
         }
 
         // Parse CSV data
         function parseCSV(text) {
             const lines = text.trim().split('\n');
-            const headers = lines[0].split(',').map(h => h.trim());
+            const headers = lines[0].split(',').map(h => h.trim().replace(/^\ufeff/, ''));
             
             for (let i = 1; i < lines.length; i++) {
                 if (!lines[i].trim()) continue;
                 
-                // Handle CSV with possible quoted fields
                 const values = parseCSVLine(lines[i]);
                 
-                if (values.length >= headers.length) {
+                if (values.length > 0) {
                     const question = {};
                     headers.forEach((header, index) => {
                         question[header] = values[index] ? values[index].trim() : '';
                     });
-                    allQuestions.push(question);
+                    
+                    // Only add if there's a question
+                    if (question['Question']) {
+                        allQuestions.push(question);
+                    }
                 }
             }
             
-            console.log(`Loaded ${allQuestions.length} questions`);
+            console.log(`✅ Loaded ${allQuestions.length} questions`);
         }
 
         // Helper to parse CSV lines with quoted fields
@@ -371,15 +396,15 @@
                 let match = true;
 
                 if (surveyor !== 'all') {
-                    match = match && (q['Surveyor'] && q['Surveyor'].includes(surveyor));
+                    match = match && (q['Surveyor_Name'] && q['Surveyor_Name'].includes(surveyor));
                 }
 
                 if (func !== 'all') {
-                    match = match && (q['Function'] && q['Function'].includes(func));
+                    match = match && (q['Function_Number'] && q['Function_Number'].includes(func));
                 }
 
                 if (search) {
-                    const searchFields = (q['Question'] || '') + ' ' + (q['Answer'] || '') + ' ' + (q['Topic'] || '');
+                    const searchFields = (q['Question'] || '') + ' ' + (q['Expected_Answer'] || '');
                     match = match && searchFields.toLowerCase().includes(search);
                 }
 
@@ -394,30 +419,35 @@
             const container = document.getElementById('questionsContainer');
             const emptyState = document.getElementById('emptyState');
             const loadingMsg = document.getElementById('loadingMsg');
+            const stats = document.getElementById('stats');
 
             loadingMsg.style.display = 'none';
 
             if (questions.length === 0) {
                 container.innerHTML = '';
+                stats.style.display = 'none';
                 emptyState.style.display = 'block';
                 return;
             }
 
+            stats.style.display = 'block';
+            stats.textContent = `📊 Showing ${questions.length} of ${allQuestions.length} questions`;
             emptyState.style.display = 'none';
+            
             container.innerHTML = questions.map((q, index) => `
-                <div class="card ${q['Safety-Critical'] === 'Yes' ? 'hot' : ''}">
+                <div class="card">
                     <div class="meta-info">
-                        <span>Q#${index + 1}</span>
-                        ${q['Function'] ? `<span>${q['Function']}</span>` : ''}
-                        ${q['Topic'] ? `<span>${q['Topic']}</span>` : ''}
-                        ${q['Surveyor'] ? `<span>${q['Surveyor']}</span>` : ''}
+                        <span>📌 Q${index + 1}</span>
+                        ${q['Function_Number'] ? `<span>${q['Function_Number']}</span>` : ''}
+                        ${q['MMD_Center'] ? `<span>${q['MMD_Center']}</span>` : ''}
                     </div>
                     <div class="question-text">${q['Question'] || 'No question text'}</div>
-                    <button class="action-btn" onclick="toggleAnswer(this)">Show Answer</button>
+                    <button class="action-btn" onclick="toggleAnswer(this)">▼ Show Answer</button>
                     <div class="answer-box">
-                        <div class="answer-title">Answer:</div>
-                        <div class="answer-content">${q['Answer'] || 'No answer provided'}</div>
-                        ${q['Notes'] ? `<div class="fail-box"><strong>Additional Notes:</strong>${q['Notes']}</div>` : ''}
+                        <div class="answer-title">✓ Answer:</div>
+                        <div class="answer-content">${q['Expected_Answer'] || 'No answer provided'}</div>
+                        ${q['Fail_Trigger'] ? `<div class="fail-box"><strong>⚠️ Fail Trigger:</strong> ${q['Fail_Trigger']}</div>` : ''}
+                        ${q['Reg_Source'] ? `<div class="reg-badge">📖 Source: ${q['Reg_Source']}</div>` : ''}
                     </div>
                 </div>
             `).join('');
@@ -427,7 +457,7 @@
         function toggleAnswer(button) {
             const answerBox = button.nextElementSibling;
             answerBox.classList.toggle('show');
-            button.textContent = answerBox.classList.contains('show') ? 'Hide Answer' : 'Show Answer';
+            button.textContent = answerBox.classList.contains('show') ? '▲ Hide Answer' : '▼ Show Answer';
         }
 
         // Load on page load
