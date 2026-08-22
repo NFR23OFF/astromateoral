@@ -238,22 +238,14 @@ header h1 {
 <div class="directory-box">
 <label>Filter by Surveyor</label>
 <select id="surveyorSelect" class="directory-select" onchange="runGlobalPipeline()">
-<option value="all">All Surveyors</option>
-<option value="Nitin Mukesh">Capt. Nitin Mukesh</option>
-<option value="Hemant Jarwal">Capt. Hemant Jarwal</option>
-<option value="Daniel Joseph">Capt. Daniel Joseph</option>
-<option value="Ravi Singh">Capt. Ravi Singh</option>
-<option value="Poswal">Capt. R. Poswal</option>
+    <option value="all">All Surveyors</option>
 </select>
 </div>
 
 <div class="directory-box">
 <label>Filter by Function</label>
 <select id="functionSelect" class="directory-select" onchange="runGlobalPipeline()">
-<option value="all">All Functions</option>
-<option value="F1">Function 1</option>
-<option value="F2">Function 2</option>
-<option value="F3">Function 3</option>
+    <option value="all">All Functions</option>
 </select>
 </div>
 
@@ -281,6 +273,8 @@ async function loadCSV() {
         const response = await fetch(csvUrl);
         const text = await response.text();
         parseCSV(text);
+        populateSurveyorDropdown();
+        populateFunctionDropdown();
         runGlobalPipeline();
     } catch (error) {
         document.getElementById('loadingMsg').innerHTML = "❌ Error loading CSV";
@@ -324,6 +318,34 @@ function parseCSVLine(line) {
     }
     result.push(current);
     return result;
+}
+
+function populateSurveyorDropdown() {
+    const dropdown = document.getElementById('surveyorSelect');
+    const uniqueSurveyors = [...new Set(allQuestions.map(q => q['Surveyor_Name']))];
+
+    uniqueSurveyors.forEach(name => {
+        if (name && name.trim() !== "") {
+            const option = document.createElement('option');
+            option.value = name.toLowerCase();
+            option.textContent = name;
+            dropdown.appendChild(option);
+        }
+    });
+}
+
+function populateFunctionDropdown() {
+    const dropdown = document.getElementById('functionSelect');
+    const uniqueFunctions = [...new Set(allQuestions.map(q => q['Function_Number']))];
+
+    uniqueFunctions.forEach(func => {
+        if (func && func.trim() !== "") {
+            const option = document.createElement('option');
+            option.value = func.toLowerCase();
+            option.textContent = func;
+            dropdown.appendChild(option);
+        }
+    });
 }
 
 function runGlobalPipeline() {
