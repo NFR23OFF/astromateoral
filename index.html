@@ -15,6 +15,7 @@
   --white: #e6f1ff;
 }
 
+/* THEMES */
 html[data-theme="dark"] body {
   background: radial-gradient(circle at top, #112240 0, #020c1b 40%, #000 100%);
   color: var(--text-dark);
@@ -34,16 +35,28 @@ body {
 /* HEADER */
 header {
   background: linear-gradient(135deg, #020c1b, #112240);
-  padding: 24px 16px;
+  padding: 28px 16px;
   text-align: center;
   color: var(--white);
   position: relative;
 }
 
-header h1 {
-  margin: 0;
-  font-size: 26px;
-  font-weight: 700;
+/* GLOW BADGE TITLE */
+.brand-title {
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--white);
+  text-shadow: 0 0 12px rgba(100,255,218,0.6);
+}
+
+.brand-title::before,
+.brand-title::after {
+  content: "✦";
+  color: var(--accent);
+  margin: 0 12px;
+  text-shadow: 0 0 12px rgba(100,255,218,0.8);
 }
 
 .subtitle {
@@ -227,7 +240,7 @@ header h1 {
 <body>
 
 <header>
-  <h1>ClearYourMates</h1>
+  <h1 class="brand-title">CLEAR YOUR MATES</h1>
   <div class="subtitle">By the Mariners, For the Mariners</div>
   <div class="subtitle-small">Premium Maritime Orals Prep Dashboard</div>
 
@@ -331,7 +344,7 @@ function getGroup(fn) {
   return "";
 }
 
-/* Preserve CSV formatting (line breaks, tabs) */
+/* Preserve CSV formatting */
 function preserveFormatting(text) {
   if (!text) return "";
   return text
