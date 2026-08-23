@@ -312,9 +312,14 @@ function parseLine(line) {
   return out;
 }
 
+/* BULLETPROOF FUNCTION GROUP DETECTOR */
 function getGroup(fn) {
-  const m = fn.match(/F[123]/i);
-  return m ? m[0].toUpperCase() : "";
+  if (!fn) return "";
+  fn = fn.toUpperCase().replace(/\s+/g, "");
+  if (fn.includes("F1")) return "F1";
+  if (fn.includes("F2")) return "F2";
+  if (fn.includes("F3")) return "F3";
+  return "";
 }
 
 function populateSurveyors() {
@@ -370,3 +375,58 @@ function render(list) {
       <div class="card">
         <div class="meta-info">
           <span>Q${i + 1}</span>
+          <span>${group}</span>
+          <span>${q["MMD_Center"]}</span>
+          <span>${q["Surveyor_Name"]}</span>
+        </div>
+
+        <div class="question-text">${q["Question"]}</div>
+
+        <div class="tag-row">
+          <button class="tag-btn ${tags.bookmark.has(id) ? "active-bookmark" : ""}"
+            onclick="toggleTag('bookmark','${id}')">⭐ Bookmark</button>
+
+          <button class="tag-btn ${tags.weak.has(id) ? "active-weak" : ""}"
+            onclick="toggleTag('weak','${id}')">❗ Weak</button>
+
+          <button class="tag-btn ${tags.strong.has(id) ? "active-strong" : ""}"
+            onclick="toggleTag('strong','${id}')">✔ Strong</button>
+        </div>
+
+        <button class="action-btn" onclick="toggleAnswer(this)">▼ Show Answer</button>
+
+        <div class="answer-box">
+          <div class="answer-title">Answer</div>
+          <div class="answer-content">${q["Expected_Answer"]}</div>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  document.getElementById("questionsContainer").innerHTML = html;
+}
+
+function toggleAnswer(btn) {
+  const box = btn.nextElementSibling;
+  box.classList.toggle("show");
+  btn.textContent = box.classList.contains("show")
+    ? "▲ Hide Answer"
+    : "▼ Show Answer";
+}
+
+function toggleTag(type, id) {
+  const set = tags[type];
+  if (set.has(id)) set.delete(id);
+  else set.add(id);
+  runPipeline();
+}
+
+function setTheme(t) {
+  document.documentElement.setAttribute("data-theme", t);
+}
+
+window.onload = loadCSV;
+</script>
+
+</body>
+</html>
