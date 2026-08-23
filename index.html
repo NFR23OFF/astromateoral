@@ -1,467 +1,372 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AstroMate Orals - Premium Chief Mate Prep Dashboard</title>
-    <style>
-        :root { 
-            --primary: #0a192f; 
-            --accent: #64ffda; 
-            --text: #8892b0; 
-            --white: #e6f1ff; 
-            --card-bg: #112240; 
-            --dark-blue: #020c1b;
-            --danger: #ff4d4d;
-            --warning: #ffb703;
-        }
-        body { 
-            font-family: 'Segoe UI', system-ui, sans-serif; 
-            background: var(--primary); 
-            margin: 0; 
-            padding: 0; 
-            color: var(--text); 
-            padding-bottom: 60px; 
-        }
-        header { 
-            background: var(--dark-blue); 
-            padding: 30px 20px; 
-            text-align: center; 
-            border-bottom: 2px solid var(--card-bg); 
-        }
-        header h1 { 
-            margin: 0; 
-            font-size: 28px; 
-            color: var(--white); 
-            font-weight: 700; 
-            letter-spacing: 1px; 
-        }
-        .subtitle { 
-            font-size: 13px; 
-            color: var(--accent); 
-            margin-top: 5px; 
-            font-weight: 600; 
-            text-transform: uppercase; 
-            letter-spacing: 2px;
-        }
-        .main-layout {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 20px;
-        }
-        @media(min-width: 900px) {
-            .main-layout {
-                grid-template-columns: 320px 1fr;
-            }
-            .sidebar-controls {
-                position: sticky;
-                top: 20px;
-                height: max-content;
-            }
-        }
-        .control-panel {
-            background: var(--card-bg);
-            border-radius: 12px;
-            padding: 20px;
-            border: 1px solid #233554;
-            margin-bottom: 20px;
-        }
-        .control-panel h3 {
-            color: var(--white);
-            margin-top: 0;
-            margin-bottom: 15px;
-            font-size: 16px;
-            border-bottom: 1px solid #233554;
-            padding-bottom: 8px;
-        }
-        .directory-box {
-            margin-bottom: 15px;
-        }
-        .directory-box label { 
-            display: block; 
-            color: var(--white); 
-            font-size: 13px; 
-            font-weight: 600; 
-            margin-bottom: 8px; 
-        }
-        .directory-select { 
-            width: 100%; 
-            padding: 12px 15px; 
-            background: var(--primary); 
-            border: 1px solid #233554; 
-            border-radius: 6px; 
-            color: var(--white); 
-            font-size: 14px; 
-            outline: none; 
-            cursor: pointer; 
-        }
-        .search-box { margin-bottom: 20px; }
-        .search-box input { 
-            width: 100%; 
-            padding: 14px 20px; 
-            background: var(--card-bg); 
-            border: 1px solid #233554; 
-            border-radius: 8px; 
-            color: var(--white); 
-            font-size: 15px; 
-            box-sizing: border-box; 
-            outline: none; 
-        }
-        .search-box input:focus { border-color: var(--accent); }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AstroMate Orals - Chief Mate Prep</title>
 
-        .tabs-container {
-            display: flex;
-            background: var(--dark-blue);
-            padding: 5px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            border: 1px solid #233554;
-        }
-        .tab-btn {
-            flex: 1;
-            text-align: center;
-            padding: 10px;
-            color: var(--text);
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            border-radius: 6px;
-            transition: 0.2s;
-        }
-        .tab-btn.active {
-            background: var(--card-bg);
-            color: var(--accent);
-        }
-        .filter-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-bottom: 15px;
-        }
-        .filter-chip { 
-            background: var(--primary); 
-            border: 1px solid #233554; 
-            color: var(--white); 
-            padding: 6px 12px; 
-            border-radius: 20px; 
-            font-weight: 600; 
-            cursor: pointer; 
-            transition: 0.2s; 
-            font-size: 11px; 
-        }
-        .filter-chip.active { border-color: var(--accent); color: var(--accent); background: rgba(100, 255, 218, 0.05); }
-        
-        .card { 
-            background: var(--card-bg); 
-            border-radius: 12px; 
-            padding: 24px; 
-            margin-bottom: 20px; 
-            box-shadow: 0 10px 30px -15px rgba(2,12,27,0.7); 
-            border-top: 4px solid #233554; 
-            position: relative; 
-        }
-        .card.hot { border-top-color: #ff4d4d; }
-        .card.hot::after { 
-            content: '⚠️ SAFETY CRITICAL'; 
-            position: absolute; 
-            top: 24px; 
-            right: 24px; 
-            color: #ff4d4d; 
-            font-size: 10px; 
-            font-weight: bold; 
-            letter-spacing: 1px; 
-        }
-        .meta-info { 
-            font-size: 11px; 
-            color: var(--accent); 
-            margin-bottom: 12px; 
-            font-weight: 600; 
-            text-transform: uppercase; 
-            letter-spacing: 1px; 
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-        .question-text { font-size: 16px; font-weight: 600; color: var(--white); margin-bottom: 18px; line-height: 1.5; }
-        
-        .action-btn { 
-            background: transparent; 
-            border: 1px solid var(--accent); 
-            color: var(--accent); 
-            padding: 10px 15px; 
-            border-radius: 4px; 
-            font-weight: 600; 
-            cursor: pointer; 
-            width: 100%; 
-            font-size: 13px; 
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .action-btn:hover { background: rgba(100, 255, 218, 0.1); }
-        
-        .answer-box { 
-            display: none; 
-            margin-top: 20px; 
-            border-top: 1px solid #233554; 
-            padding-top: 20px; 
-        }
-        .answer-box.show { display: block; }
-        .answer-title { font-weight: bold; color: var(--accent); margin-bottom: 8px; font-size: 12px; letter-spacing: 0.5px; text-transform: uppercase; }
-        .answer-content { font-size: 14.5px; line-height: 1.6; color: var(--text); }
-        
-        .fail-box { 
-            background: rgba(255, 77, 77, 0.07); 
-            border: 1px solid #ff4d4d; 
-            color: #ff6b6b; 
-            padding: 14px; 
-            border-radius: 6px; 
-            margin-top: 15px; 
-            font-size: 13px; 
-            line-height: 1.5; 
-        }
-        .fail-box strong {
-            color: #ff4d4d;
-            text-transform: uppercase;
-            font-size: 11px;
-            display: block;
-            margin-bottom: 4px;
-            letter-spacing: 0.5px;
-        }
-        .reg-badge { 
-            display: inline-block; 
-            background: #172a45; 
-            color: var(--white); 
-            font-size: 11px; 
-            padding: 4px 10px; 
-            border-radius: 4px; 
-            margin-top: 15px; 
-            font-weight: 600; 
-            border: 1px solid #233554; 
-        }
-        .empty-state { text-align: center; padding: 40px; background: var(--card-bg); border-radius: 12px; border: 1px dashed #233554; }
-        .loading { text-align: center; padding: 40px; color: var(--accent); }
-        .questions-container { width: 100%; }
-        .stats { 
-            background: rgba(100, 255, 218, 0.1); 
-            border: 1px solid #233554; 
-            color: var(--accent); 
-            padding: 10px 15px; 
-            border-radius: 6px; 
-            font-size: 12px; 
-            margin-bottom: 15px;
-        }
-    </style>
+<style>
+/* THEME */
+:root {
+  --bg-dark: #0a192f;
+  --bg-light: #f5f7fb;
+  --accent: #64ffda;
+  --text-dark: #8892b0;
+  --text-light: #1f2933;
+  --white: #e6f1ff;
+}
+
+html[data-theme="dark"] body {
+  background: radial-gradient(circle at top, #112240 0, #020c1b 40%, #000 100%);
+  color: var(--text-dark);
+}
+
+html[data-theme="light"] body {
+  background: var(--bg-light);
+  color: var(--text-light);
+}
+
+/* GENERAL */
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+/* HEADER */
+header {
+  background: linear-gradient(135deg, #020c1b, #112240);
+  padding: 24px 16px;
+  text-align: center;
+  color: var(--white);
+  position: relative;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.subtitle {
+  font-size: 12px;
+  color: var(--accent);
+  margin-top: 4px;
+}
+
+/* THEME TOGGLE */
+.theme-toggle {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  display: flex;
+  gap: 8px;
+}
+
+.theme-toggle button {
+  background: transparent;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  padding: 4px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+/* LAYOUT */
+.main-layout {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+@media(min-width: 900px) {
+  .main-layout {
+    grid-template-columns: 300px 1fr;
+  }
+}
+
+/* SIDEBAR */
+.control-panel {
+  background: rgba(17,34,64,0.85);
+  padding: 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.control-panel h3 {
+  margin: 0 0 12px 0;
+  color: var(--white);
+}
+
+.directory-box {
+  margin-bottom: 12px;
+}
+
+.directory-box label {
+  color: var(--white);
+  font-size: 12px;
+  margin-bottom: 6px;
+  display: block;
+}
+
+.directory-select {
+  width: 100%;
+  padding: 10px;
+  background: rgba(2,12,27,0.8);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  color: var(--white);
+}
+
+/* SEARCH */
+.search-box input {
+  width: 100%;
+  padding: 12px;
+  background: rgba(2,12,27,0.8);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  color: var(--white);
+}
+
+/* CARDS */
+.card {
+  background: rgba(17,34,64,0.85);
+  padding: 18px;
+  border-radius: 16px;
+  margin-bottom: 14px;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.meta-info {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  font-size: 11px;
+}
+
+.meta-info span {
+  background: rgba(2,12,27,0.8);
+  padding: 4px 8px;
+  border-radius: 999px;
+  color: var(--white);
+}
+
+.question-text {
+  margin-top: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--white);
+}
+
+/* TAGS */
+.tag-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.tag-btn {
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid #233554;
+  background: #0a192f;
+  color: var(--accent);
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.tag-btn.active-bookmark { background: var(--accent); color: #0a192f; }
+.tag-btn.active-weak { background: #ff4d4d; color: white; }
+.tag-btn.active-strong { background: #4caf50; color: white; }
+
+/* ANSWER */
+.action-btn {
+  margin-top: 10px;
+  width: 100%;
+  padding: 8px;
+  border-radius: 999px;
+  background: #112240;
+  border: 1px solid rgba(255,255,255,0.12);
+  color: var(--accent);
+  cursor: pointer;
+}
+
+.answer-box {
+  display: none;
+  margin-top: 12px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  padding-top: 12px;
+}
+
+.answer-box.show { display: block; }
+
+.answer-title {
+  color: var(--accent);
+  font-size: 12px;
+  margin-bottom: 6px;
+}
+
+.answer-content {
+  color: var(--white);
+  font-size: 14px;
+  white-space: pre-wrap;
+}
+</style>
 </head>
+
 <body>
 
-    <header>
-        <h1>AstroMate Orals</h1>
-        <div class="subtitle">Premium Chief Mate Prep Dashboard</div>
-    </header>
+<header>
+  <h1>AstroMate Orals</h1>
+  <div class="subtitle">Chief Mate Prep Dashboard</div>
 
-    <div class="main-layout">
-        <!-- Sidebar Navigation Controls -->
-        <div class="sidebar-controls">
-            <div class="control-panel">
-                <h3>Syllabus Relational Filters</h3>
-                
-                <div class="directory-box">
-                    <label for="surveyorSelect">Filter by Target Surveyor</label>
-                    <select id="surveyorSelect" class="directory-select" onchange="runGlobalPipeline()">
-                        <option value="all">All Surveyors</option>
-                        <option value="Nitin Mukesh">Capt. Nitin Mukesh</option>
-                        <option value="Hemant Jarwal">Capt. Hemant Jarwal</option>
-                        <option value="Daniel Joseph">Capt. Daniel Joseph</option>
-                        <option value="Ravi Singh">Capt. Ravi Singh</option>
-                        <option value="Poswal">Capt. R. Poswal</option>
-                    </select>
-                </div>
+  <div class="theme-toggle">
+    <button onclick="setTheme('dark')">Dark</button>
+    <button onclick="setTheme('light')">Light</button>
+  </div>
+</header>
 
-                <div class="directory-box">
-                    <label for="functionSelect">Filter by Exam Function</label>
-                    <select id="functionSelect" class="directory-select" onchange="runGlobalPipeline()">
-                        <option value="all">All Functions</option>
-                        <option value="F1">Function 1 (Navigation / ROR)</option>
-                        <option value="F2">Function 2 (Cargo Ops / Stability)</option>
-                        <option value="F3">Function 3 (Legislation / Safety)</option>
-                    </select>
-                </div>
+<div class="main-layout">
 
-                <div class="search-box">
-                    <input type="text" id="searchInput" placeholder="Search questions..." onkeyup="runGlobalPipeline()">
-                </div>
-            </div>
-        </div>
+  <!-- SIDEBAR -->
+  <div class="control-panel">
+    <h3>Filters</h3>
 
-        <!-- Main Content Area -->
-        <div class="content-area">
-            <div id="loadingMsg" class="loading">⏳ Loading questions...</div>
-            <div id="stats" class="stats" style="display:none;"></div>
-            <div id="questionsContainer" class="questions-container"></div>
-            <div id="emptyState" class="empty-state" style="display:none;">No questions found. Try adjusting your filters.</div>
-        </div>
+    <div class="directory-box">
+      <label>Surveyor</label>
+      <select id="surveyorSelect" class="directory-select" onchange="runPipeline()">
+        <option value="all">All Surveyors</option>
+      </select>
     </div>
 
-    <script>
-        let allQuestions = [];
+    <div class="directory-box">
+      <label>Function Group</label>
+      <select id="functionSelect" class="directory-select" onchange="runPipeline()">
+        <option value="all">All</option>
+        <option value="F1">F1</option>
+        <option value="F2">F2</option>
+        <option value="F3">F3</option>
+      </select>
+    </div>
 
-        // Load CSV data from raw GitHub URL
-        async function loadCSV() {
-            try {
-                const csvUrl = 'https://raw.githubusercontent.com/NFR23OFF/astromateoral/main/database.csv';
-                const response = await fetch(csvUrl);
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                
-                const text = await response.text();
-                parseCSV(text);
-                runGlobalPipeline();
-            } catch (error) {
-                console.error('Error loading CSV:', error);
-                document.getElementById('loadingMsg').innerHTML = `
-                    <div style="color: #ff4d4d;">
-                        ❌ Error loading questions.<br>
-                        <small>${error.message}</small>
-                    </div>
-                `;
-            }
-        }
+    <div class="directory-box">
+      <label>Tag</label>
+      <select id="tagFilterSelect" class="directory-select" onchange="runPipeline()">
+        <option value="none">None</option>
+        <option value="bookmark">Bookmarked</option>
+        <option value="weak">Weak</option>
+        <option value="strong">Strong</option>
+      </select>
+    </div>
 
-        // Parse CSV data
-        function parseCSV(text) {
-            const lines = text.trim().split('\n');
-            const headers = lines[0].split(',').map(h => h.trim().replace(/^\ufeff/, ''));
-            
-            for (let i = 1; i < lines.length; i++) {
-                if (!lines[i].trim()) continue;
-                
-                const values = parseCSVLine(lines[i]);
-                
-                if (values.length > 0) {
-                    const question = {};
-                    headers.forEach((header, index) => {
-                        question[header] = values[index] ? values[index].trim() : '';
-                    });
-                    
-                    // Only add if there's a question
-                    if (question['Question']) {
-                        allQuestions.push(question);
-                    }
-                }
-            }
-            
-            console.log(`✅ Loaded ${allQuestions.length} questions`);
-        }
+    <div class="search-box">
+      <input id="searchInput" placeholder="Search..." onkeyup="runPipeline()">
+    </div>
+  </div>
 
-        // Helper to parse CSV lines with quoted fields
-        function parseCSVLine(line) {
-            const result = [];
-            let current = '';
-            let insideQuotes = false;
-            
-            for (let i = 0; i < line.length; i++) {
-                const char = line[i];
-                const nextChar = line[i + 1];
-                
-                if (char === '"') {
-                    if (insideQuotes && nextChar === '"') {
-                        current += '"';
-                        i++;
-                    } else {
-                        insideQuotes = !insideQuotes;
-                    }
-                } else if (char === ',' && !insideQuotes) {
-                    result.push(current);
-                    current = '';
-                } else {
-                    current += char;
-                }
-            }
-            result.push(current);
-            return result;
-        }
+  <!-- CONTENT -->
+  <div>
+    <div id="stats"></div>
+    <div id="questionsContainer"></div>
+  </div>
 
-        // Filter and display questions
-        function runGlobalPipeline() {
-            const surveyor = document.getElementById('surveyorSelect').value;
-            const func = document.getElementById('functionSelect').value;
-            const search = document.getElementById('searchInput').value.toLowerCase();
+</div>
 
-            let filtered = allQuestions.filter(q => {
-                let match = true;
+<script>
+let allQuestions = [];
+let tags = { bookmark: new Set(), weak: new Set(), strong: new Set() };
 
-                if (surveyor !== 'all') {
-                    match = match && (q['Surveyor_Name'] && q['Surveyor_Name'].includes(surveyor));
-                }
+async function loadCSV() {
+  const url = "https://raw.githubusercontent.com/NFR23OFF/astromateoral/main/database.csv";
+  const res = await fetch(url);
+  const text = await res.text();
+  parseCSV(text);
+  populateSurveyors();
+  runPipeline();
+}
 
-                if (func !== 'all') {
-                    match = match && (q['Function_Number'] && q['Function_Number'].includes(func));
-                }
+function parseCSV(text) {
+  const lines = text.split("\n");
+  const headers = lines[0].split(",");
 
-                if (search) {
-                    const searchFields = (q['Question'] || '') + ' ' + (q['Expected_Answer'] || '');
-                    match = match && searchFields.toLowerCase().includes(search);
-                }
+  for (let i = 1; i < lines.length; i++) {
+    const row = parseLine(lines[i]);
+    const q = {};
+    headers.forEach((h, idx) => q[h] = row[idx] || "");
+    if (q["Question"]) allQuestions.push(q);
+  }
+}
 
-                return match;
-            });
+function parseLine(line) {
+  const out = [];
+  let cur = "", inside = false;
 
-            displayQuestions(filtered);
-        }
+  for (let c of line) {
+    if (c === '"') inside = !inside;
+    else if (c === "," && !inside) { out.push(cur); cur = ""; }
+    else cur += c;
+  }
+  out.push(cur);
+  return out;
+}
 
-        // Display questions as cards
-        function displayQuestions(questions) {
-            const container = document.getElementById('questionsContainer');
-            const emptyState = document.getElementById('emptyState');
-            const loadingMsg = document.getElementById('loadingMsg');
-            const stats = document.getElementById('stats');
+function getGroup(fn) {
+  const m = fn.match(/F[123]/i);
+  return m ? m[0].toUpperCase() : "";
+}
 
-            loadingMsg.style.display = 'none';
+function populateSurveyors() {
+  const dd = document.getElementById("surveyorSelect");
+  const list = [...new Set(allQuestions.map(q => q["Surveyor_Name"]))];
+  list.forEach(s => {
+    if (!s) return;
+    const opt = document.createElement("option");
+    opt.value = s.toLowerCase();
+    opt.textContent = s;
+    dd.appendChild(opt);
+  });
+}
 
-            if (questions.length === 0) {
-                container.innerHTML = '';
-                stats.style.display = 'none';
-                emptyState.style.display = 'block';
-                return;
-            }
+function runPipeline() {
+  const surveyor = document.getElementById("surveyorSelect").value;
+  const func = document.getElementById("functionSelect").value;
+  const tag = document.getElementById("tagFilterSelect").value;
+  const search = document.getElementById("searchInput").value.toLowerCase();
 
-            stats.style.display = 'block';
-            stats.textContent = `📊 Showing ${questions.length} of ${allQuestions.length} questions`;
-            emptyState.style.display = 'none';
-            
-            container.innerHTML = questions.map((q, index) => `
-                <div class="card">
-                    <div class="meta-info">
-                        <span>📌 Q${index + 1}</span>
-                        ${q['Function_Number'] ? `<span>${q['Function_Number']}</span>` : ''}
-                        ${q['MMD_Center'] ? `<span>${q['MMD_Center']}</span>` : ''}
-                    </div>
-                    <div class="question-text">${q['Question'] || 'No question text'}</div>
-                    <button class="action-btn" onclick="toggleAnswer(this)">▼ Show Answer</button>
-                    <div class="answer-box">
-                        <div class="answer-title">✓ Answer:</div>
-                        <div class="answer-content">${q['Expected_Answer'] || 'No answer provided'}</div>
-                        ${q['Fail_Trigger'] ? `<div class="fail-box"><strong>⚠️ Fail Trigger:</strong> ${q['Fail_Trigger']}</div>` : ''}
-                        ${q['Reg_Source'] ? `<div class="reg-badge">📖 Source: ${q['Reg_Source']}</div>` : ''}
-                    </div>
-                </div>
-            `).join('');
-        }
+  const filtered = allQuestions.filter((q, idx) => {
+    let ok = true;
 
-        // Toggle answer visibility
-        function toggleAnswer(button) {
-            const answerBox = button.nextElementSibling;
-            answerBox.classList.toggle('show');
-            button.textContent = answerBox.classList.contains('show') ? '▲ Hide Answer' : '▼ Show Answer';
-        }
+    if (surveyor !== "all")
+      ok = ok && q["Surveyor_Name"].toLowerCase().includes(surveyor);
 
-        // Load on page load
-        window.addEventListener('DOMContentLoaded', loadCSV);
-    </script>
-</body>
-</html>
+    if (func !== "all")
+      ok = ok && getGroup(q["Function_Number"]) === func;
+
+    if (search)
+      ok = ok && (q["Question"] + q["Expected_Answer"]).toLowerCase().includes(search);
+
+    if (tag !== "none") {
+      const id = idx + q["Question"];
+      ok = ok && tags[tag].has(id);
+    }
+
+    return ok;
+  });
+
+  render(filtered);
+}
+
+function render(list) {
+  document.getElementById("stats").textContent =
+    `Showing ${list.length} of ${allQuestions.length}`;
+
+  const html = list.map((q, i) => {
+    const id = i + q["Question"];
+    const group = getGroup(q["Function_Number"]);
+
+    return `
+      <div class="card">
+        <div class="meta-info">
+          <span>Q${i + 1}</span>
