@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AstroMate Orals - Chief Mate Prep</title>
+<title>ClearYourMates - Maritime Orals Prep</title>
 
 <style>
 :root {
@@ -42,12 +42,21 @@ header {
 
 header h1 {
   margin: 0;
-  font-size: 24px;
+  font-size: 26px;
+  font-weight: 700;
 }
 
 .subtitle {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--accent);
+  margin-top: 6px;
+  font-weight: 600;
+}
+
+.subtitle-small {
+  font-size: 11px;
+  color: var(--white);
+  opacity: 0.8;
   margin-top: 4px;
 }
 
@@ -115,4 +124,326 @@ header h1 {
   background: rgba(2,12,27,0.8);
   border: 1px solid rgba(255,255,255,0.08);
   border-radius: 10px;
-  color: var
+  color: var(--white);
+}
+
+/* SEARCH */
+.search-box input {
+  width: 100%;
+  padding: 12px;
+  background: rgba(2,12,27,0.8);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  color: var(--white);
+}
+
+/* CARDS */
+.card {
+  background: rgba(17,34,64,0.85);
+  padding: 18px;
+  border-radius: 16px;
+  margin-bottom: 14px;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.meta-info {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  font-size: 11px;
+}
+
+.meta-info span {
+  background: rgba(2,12,27,0.8);
+  padding: 4px 8px;
+  border-radius: 999px;
+  color: var(--white);
+}
+
+.question-text {
+  margin-top: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--white);
+}
+
+/* TAGS */
+.tag-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.tag-btn {
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid #233554;
+  background: #0a192f;
+  color: var(--accent);
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.tag-btn.active-bookmark { background: var(--accent); color: #0a192f; }
+.tag-btn.active-weak { background: #ff4d4d; color: white; }
+.tag-btn.active-strong { background: #4caf50; color: white; }
+
+/* ANSWER */
+.action-btn {
+  margin-top: 10px;
+  width: 100%;
+  padding: 8px;
+  border-radius: 999px;
+  background: #112240;
+  border: 1px solid rgba(255,255,255,0.12);
+  color: var(--accent);
+  cursor: pointer;
+}
+
+.answer-box {
+  display: none;
+  margin-top: 12px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  padding-top: 12px;
+}
+
+.answer-box.show { display: block; }
+
+.answer-title {
+  color: var(--accent);
+  font-size: 12px;
+  margin-bottom: 6px;
+}
+
+.answer-content {
+  color: var(--white);
+  font-size: 14px;
+  white-space: normal;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>ClearYourMates</h1>
+  <div class="subtitle">By the Mariners, For the Mariners</div>
+  <div class="subtitle-small">Premium Maritime Orals Prep Dashboard</div>
+
+  <div class="theme-toggle">
+    <button onclick="setTheme('dark')">Dark</button>
+    <button onclick="setTheme('light')">Light</button>
+  </div>
+</header>
+
+<div class="main-layout">
+
+  <!-- SIDEBAR -->
+  <div class="control-panel">
+    <h3>Filters</h3>
+
+    <div class="directory-box">
+      <label>Surveyor</label>
+      <select id="surveyorSelect" class="directory-select" onchange="runPipeline()">
+        <option value="all">All Surveyors</option>
+      </select>
+    </div>
+
+    <div class="directory-box">
+      <label>Function Group</label>
+      <select id="functionSelect" class="directory-select" onchange="runPipeline()">
+        <option value="all">All</option>
+        <option value="F1">F1</option>
+        <option value="F2">F2</option>
+        <option value="F3">F3</option>
+      </select>
+    </div>
+
+    <div class="directory-box">
+      <label>Tag</label>
+      <select id="tagFilterSelect" class="directory-select" onchange="runPipeline()">
+        <option value="none">None</option>
+        <option value="bookmark">Bookmarked</option>
+        <option value="weak">Weak</option>
+        <option value="strong">Strong</option>
+      </select>
+    </div>
+
+    <div class="search-box">
+      <input id="searchInput" placeholder="Search..." onkeyup="runPipeline()">
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div>
+    <div id="stats"></div>
+    <div id="questionsContainer"></div>
+  </div>
+
+</div>
+
+<script>
+let allQuestions = [];
+let tags = { bookmark: new Set(), weak: new Set(), strong: new Set() };
+
+async function loadCSV() {
+  const url = "https://raw.githubusercontent.com/NFR23OFF/astromateoral/main/database.csv";
+  const res = await fetch(url);
+  const text = await res.text();
+  parseCSV(text);
+  populateSurveyors();
+  runPipeline();
+}
+
+function parseCSV(text) {
+  const lines = text.split("\n");
+  const headers = lines[0].split(",");
+
+  for (let i = 1; i < lines.length; i++) {
+    const row = parseLine(lines[i]);
+    const q = {};
+    headers.forEach((h, idx) => q[h] = row[idx] || "");
+    if (q["Question"]) allQuestions.push(q);
+  }
+}
+
+function parseLine(line) {
+  const out = [];
+  let cur = "", inside = false;
+
+  for (let c of line) {
+    if (c === '"') inside = !inside;
+    else if (c === "," && !inside) { out.push(cur); cur = ""; }
+    else cur += c;
+  }
+  out.push(cur);
+  return out;
+}
+
+/* Function group detector: F1/F2/F3 only */
+function getGroup(fn) {
+  if (!fn) return "";
+  fn = fn.toUpperCase().replace(/\s+/g, "");
+  if (fn.includes("F1")) return "F1";
+  if (fn.includes("F2")) return "F2";
+  if (fn.includes("F3")) return "F3";
+  return "";
+}
+
+/* Preserve CSV formatting (line breaks, tabs) */
+function preserveFormatting(text) {
+  if (!text) return "";
+  return text
+    .replace(/\r\n/g, "<br>")
+    .replace(/\n/g, "<br>")
+    .replace(/\t/g, "&nbsp;&nbsp;&nbsp;");
+}
+
+function populateSurveyors() {
+  const dd = document.getElementById("surveyorSelect");
+  const list = [...new Set(allQuestions.map(q => q["Surveyor_Name"]))];
+  list.forEach(s => {
+    if (!s) return;
+    const opt = document.createElement("option");
+    opt.value = s.toLowerCase();
+    opt.textContent = s;
+    dd.appendChild(opt);
+  });
+}
+
+function runPipeline() {
+  const surveyor = document.getElementById("surveyorSelect").value;
+  const func = document.getElementById("functionSelect").value;
+  const tag = document.getElementById("tagFilterSelect").value;
+  const search = document.getElementById("searchInput").value.toLowerCase();
+
+  const filtered = allQuestions.filter((q, idx) => {
+    let ok = true;
+
+    if (surveyor !== "all")
+      ok = ok && (q["Surveyor_Name"] || "").toLowerCase().includes(surveyor);
+
+    if (func !== "all")
+      ok = ok && getGroup(q["Function_Number"]) === func;
+
+    if (search)
+      ok = ok && ((q["Question"] || "") + (q["Expected_Answer"] || "")).toLowerCase().includes(search);
+
+    if (tag !== "none") {
+      const id = idx + q["Question"];
+      ok = ok && tags[tag].has(id);
+    }
+
+    return ok;
+  });
+
+  render(filtered);
+}
+
+function render(list) {
+  document.getElementById("stats").textContent =
+    `Showing ${list.length} of ${allQuestions.length}`;
+
+  const html = list.map((q, i) => {
+    const id = i + q["Question"];
+    const group = getGroup(q["Function_Number"]);
+
+    return `
+      <div class="card">
+        <div class="meta-info">
+          <span>Q${i + 1}</span>
+          <span>${group}</span>
+          <span>${q["MMD_Center"] || ""}</span>
+          <span>${q["Surveyor_Name"] || ""}</span>
+        </div>
+
+        <div class="question-text">${q["Question"]}</div>
+
+        <div class="tag-row">
+          <button class="tag-btn ${tags.bookmark.has(id) ? "active-bookmark" : ""}"
+            onclick="toggleTag('bookmark','${id}')">⭐ Bookmark</button>
+
+          <button class="tag-btn ${tags.weak.has(id) ? "active-weak" : ""}"
+            onclick="toggleTag('weak','${id}')">❗ Weak</button>
+
+          <button class="tag-btn ${tags.strong.has(id) ? "active-strong" : ""}"
+            onclick="toggleTag('strong','${id}')">✔ Strong</button>
+        </div>
+
+        <button class="action-btn" onclick="toggleAnswer(this)">▼ Show Answer</button>
+
+        <div class="answer-box">
+          <div class="answer-title">Answer</div>
+          <div class="answer-content">${preserveFormatting(q["Expected_Answer"])}</div>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  document.getElementById("questionsContainer").innerHTML = html;
+}
+
+function toggleAnswer(btn) {
+  const box = btn.nextElementSibling;
+  box.classList.toggle("show");
+  btn.textContent = box.classList.contains("show")
+    ? "▲ Hide Answer"
+    : "▼ Show Answer";
+}
+
+function toggleTag(type, id) {
+  const set = tags[type];
+  if (set.has(id)) set.delete(id);
+  else set.add(id);
+  runPipeline();
+}
+
+function setTheme(t) {
+  document.documentElement.setAttribute("data-theme", t);
+}
+
+window.onload = loadCSV;
+</script>
+
+</body>
+</html>
