@@ -3,260 +3,370 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AstroMate Orals - Premium Chief Mate Prep Dashboard</title>
+<title>AstroMate Orals - Chief Mate Prep</title>
 
 <style>
+/* THEME */
 :root {
-    --primary-dark: #0a192f;
-    --primary-light: #f5f7fb;
-    --accent: #64ffda;
-    --text-dark: #8892b0;
-    --text-light: #1f2933;
-    --white: #e6f1ff;
-    --card-bg-dark: rgba(17,34,64,0.85);
-    --card-bg-light: rgba(255,255,255,0.85);
-    --danger: #ff4d4d;
+  --bg-dark: #0a192f;
+  --bg-light: #f5f7fb;
+  --accent: #64ffda;
+  --text-dark: #8892b0;
+  --text-light: #1f2933;
+  --white: #e6f1ff;
 }
 
-/* DARK MODE */
 html[data-theme="dark"] body {
-    background: radial-gradient(circle at top, #112240 0, #020c1b 40%, #000 100%);
-    color: var(--text-dark);
+  background: radial-gradient(circle at top, #112240 0, #020c1b 40%, #000 100%);
+  color: var(--text-dark);
 }
 
-/* LIGHT MODE FIX — TEXT NOW VISIBLE */
 html[data-theme="light"] body {
-    background: var(--primary-light);
-    color: var(--text-light);
+  background: var(--bg-light);
+  color: var(--text-light);
 }
 
-html[data-theme="light"] .question-text,
-html[data-theme="light"] .answer-content,
-html[data-theme="light"] .meta-info span,
-html[data-theme="light"] .difficulty-badge {
-    color: #1f2933 !important;
-}
-
-html[data-theme="light"] .card {
-    background: rgba(255,255,255,0.9) !important;
-    border-color: #d1d5db !important;
-}
-
-html[data-theme="light"] .tag-btn {
-    background: #ffffff !important;
-    color: #1f2933 !important;
-    border-color: #d1d5db !important;
-}
-
-html[data-theme="light"] .action-btn {
-    background: #ffffff !important;
-    color: #1f2933 !important;
-    border-color: #d1d5db !important;
-}
-
-/* GENERAL UI */
+/* GENERAL */
 body {
-    font-family: 'Segoe UI', system-ui, sans-serif;
-    margin: 0;
-    padding: 0;
-    padding-bottom: 80px;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  margin: 0;
+  padding: 0;
 }
 
 /* HEADER */
 header {
-    background: linear-gradient(135deg, #020c1b, #112240);
-    padding: 30px 20px;
-    text-align: center;
-    border-bottom: 2px solid rgba(255,255,255,0.05);
-    position: relative;
+  background: linear-gradient(135deg, #020c1b, #112240);
+  padding: 24px 16px;
+  text-align: center;
+  color: var(--white);
+  position: relative;
 }
 
 header h1 {
-    margin: 0;
-    font-size: 28px;
-    color: var(--white);
-    font-weight: 700;
+  margin: 0;
+  font-size: 24px;
 }
 
 .subtitle {
-    font-size: 13px;
-    color: var(--accent);
-    margin-top: 5px;
-    font-weight: 600;
-    text-transform: uppercase;
+  font-size: 12px;
+  color: var(--accent);
+  margin-top: 4px;
 }
 
 /* THEME TOGGLE */
 .theme-toggle {
-    position: absolute;
-    top: 16px;
-    right: 20px;
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    color: var(--accent);
-    font-size: 12px;
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  display: flex;
+  gap: 8px;
 }
+
 .theme-toggle button {
-    background: transparent;
-    border: 1px solid var(--accent);
-    border-radius: 999px;
-    padding: 4px 10px;
-    color: var(--accent);
-    cursor: pointer;
-    font-size: 11px;
+  background: transparent;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  padding: 4px 10px;
+  border-radius: 999px;
+  cursor: pointer;
 }
 
 /* LAYOUT */
 .main-layout {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
 }
 
 @media(min-width: 900px) {
-    .main-layout {
-        grid-template-columns: 320px 1fr;
-    }
-    .sidebar-controls {
-        position: sticky;
-        top: 20px;
-        height: max-content;
-    }
+  .main-layout {
+    grid-template-columns: 300px 1fr;
+  }
 }
 
-/* CONTROL PANEL */
+/* SIDEBAR */
 .control-panel {
-    border-radius: 16px;
-    padding: 20px;
-    border: 1px solid rgba(255,255,255,0.08);
-    backdrop-filter: blur(18px);
-    margin-bottom: 20px;
+  background: rgba(17,34,64,0.85);
+  padding: 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.08);
 }
 
 .control-panel h3 {
-    color: var(--white);
-    margin-top: 0;
-    margin-bottom: 15px;
-    font-size: 16px;
+  margin: 0 0 12px 0;
+  color: var(--white);
 }
 
-/* INPUTS */
 .directory-box {
-    margin-bottom: 15px;
-}
-.directory-box label {
-    display: block;
-    color: var(--white);
-    font-size: 13px;
-    font-weight: 600;
-    margin-bottom: 8px;
-}
-.directory-select {
-    width: 100%;
-    padding: 12px 15px;
-    background: rgba(2,12,27,0.8);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 10px;
-    color: var(--white);
-    font-size: 14px;
-    outline: none;
-    cursor: pointer;
+  margin-bottom: 12px;
 }
 
+.directory-box label {
+  color: var(--white);
+  font-size: 12px;
+  margin-bottom: 6px;
+  display: block;
+}
+
+.directory-select {
+  width: 100%;
+  padding: 10px;
+  background: rgba(2,12,27,0.8);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  color: var(--white);
+}
+
+/* SEARCH */
 .search-box input {
-    width: 100%;
-    padding: 14px 20px;
-    background: rgba(2,12,27,0.8);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 10px;
-    color: var(--white);
-    font-size: 15px;
+  width: 100%;
+  padding: 12px;
+  background: rgba(2,12,27,0.8);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  color: var(--white);
 }
 
 /* CARDS */
 .card {
-    border-radius: 18px;
-    padding: 24px;
-    margin-bottom: 20px;
-    border: 1px solid rgba(255,255,255,0.08);
-    backdrop-filter: blur(18px);
-    position: relative;
+  background: rgba(17,34,64,0.85);
+  padding: 18px;
+  border-radius: 16px;
+  margin-bottom: 14px;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.meta-info {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  font-size: 11px;
+}
+
+.meta-info span {
+  background: rgba(2,12,27,0.8);
+  padding: 4px 8px;
+  border-radius: 999px;
+  color: var(--white);
 }
 
 .question-text {
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--white);
-    margin-bottom: 18px;
+  margin-top: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--white);
 }
 
-/* TAG BUTTONS */
+/* TAGS */
 .tag-row {
-    display: flex;
-    gap: 8px;
-    margin-top: 10px;
-    flex-wrap: wrap;
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
 }
 
 .tag-btn {
-    border-radius: 999px;
-    border: 1px solid #233554;
-    background: #0a192f;
-    color: #64ffda;
-    font-size: 12px;
-    padding: 6px 12px;
-    cursor: pointer;
-    font-weight: 600;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid #233554;
+  background: #0a192f;
+  color: var(--accent);
+  font-size: 11px;
+  cursor: pointer;
 }
 
-.tag-btn.active-bookmark {
-    background: #64ffda;
-    color: #0a192f;
-    border-color: #64ffda;
+.tag-btn.active-bookmark { background: var(--accent); color: #0a192f; }
+.tag-btn.active-weak { background: #ff4d4d; color: white; }
+.tag-btn.active-strong { background: #4caf50; color: white; }
+
+/* ANSWER */
+.action-btn {
+  margin-top: 10px;
+  width: 100%;
+  padding: 8px;
+  border-radius: 999px;
+  background: #112240;
+  border: 1px solid rgba(255,255,255,0.12);
+  color: var(--accent);
+  cursor: pointer;
 }
 
-.tag-btn.active-weak {
-    background: #ff4d4d;
-    color: white;
-}
-
-.tag-btn.active-strong {
-    background: #4caf50;
-    color: white;
-}
-
-/* ANSWER BOX */
 .answer-box {
-    display: none;
-    margin-top: 20px;
-    border-top: 1px solid rgba(255,255,255,0.08);
-    padding-top: 20px;
+  display: none;
+  margin-top: 12px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  padding-top: 12px;
 }
 
-.answer-box.show {
-    display: block;
-}
+.answer-box.show { display: block; }
 
 .answer-title {
-    font-weight: bold;
-    color: var(--accent);
-    margin-bottom: 8px;
-    font-size: 12px;
+  color: var(--accent);
+  font-size: 12px;
+  margin-bottom: 6px;
 }
 
 .answer-content {
-    font-size: 14.5px;
-    line-height: 1.6;
-    color: var(--white);
+  color: var(--white);
+  font-size: 14px;
+  white-space: pre-wrap;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>AstroMate Orals</h1>
+  <div class="subtitle">Chief Mate Prep Dashboard</div>
+
+  <div class="theme-toggle">
+    <button onclick="setTheme('dark')">Dark</button>
+    <button onclick="setTheme('light')">Light</button>
+  </div>
+</header>
+
+<div class="main-layout">
+
+  <!-- SIDEBAR -->
+  <div class="control-panel">
+    <h3>Filters</h3>
+
+    <div class="directory-box">
+      <label>Surveyor</label>
+      <select id="surveyorSelect" class="directory-select" onchange="runPipeline()">
+        <option value="all">All Surveyors</option>
+      </select>
+    </div>
+
+    <div class="directory-box">
+      <label>Function Group</label>
+      <select id="functionSelect" class="directory-select" onchange="runPipeline()">
+        <option value="all">All</option>
+        <option value="F1">F1</option>
+        <option value="F2">F2</option>
+        <option value="F3">F3</option>
+      </select>
+    </div>
+
+    <div class="directory-box">
+      <label>Tag</label>
+      <select id="tagFilterSelect" class="directory-select" onchange="runPipeline()">
+        <option value="none">None</option>
+        <option value="bookmark">Bookmarked</option>
+        <option value="weak">Weak</option>
+        <option value="strong">Strong</option>
+      </select>
+    </div>
+
+    <div class="search-box">
+      <input id="searchInput" placeholder="Search..." onkeyup="runPipeline()">
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div>
+    <div id="stats"></div>
+    <div id="questionsContainer"></div>
+  </div>
+
+</div>
+
+<script>
+let allQuestions = [];
+let tags = { bookmark: new Set(), weak: new Set(), strong: new Set() };
+
+async function loadCSV() {
+  const url = "https://raw.githubusercontent.com/NFR23OFF/astromateoral/main/database.csv";
+  const res = await fetch(url);
+  const text = await res.text();
+  parseCSV(text);
+  populateSurveyors();
+  runPipeline();
 }
 
-/* BUTTONS */
-.action-btn {
-    background: #112240;
-    border: 1px solid rgba(255,255,255,0.12);
-    color: var(--accent);
-    padding
+function parseCSV(text) {
+  const lines = text.split("\n");
+  const headers = lines[0].split(",");
+
+  for (let i = 1; i < lines.length; i++) {
+    const row = parseLine(lines[i]);
+    const q = {};
+    headers.forEach((h, idx) => q[h] = row[idx] || "");
+    if (q["Question"]) allQuestions.push(q);
+  }
+}
+
+function parseLine(line) {
+  const out = [];
+  let cur = "", inside = false;
+
+  for (let c of line) {
+    if (c === '"') inside = !inside;
+    else if (c === "," && !inside) { out.push(cur); cur = ""; }
+    else cur += c;
+  }
+  out.push(cur);
+  return out;
+}
+
+function getGroup(fn) {
+  const m = fn.match(/F[123]/i);
+  return m ? m[0].toUpperCase() : "";
+}
+
+function populateSurveyors() {
+  const dd = document.getElementById("surveyorSelect");
+  const list = [...new Set(allQuestions.map(q => q["Surveyor_Name"]))];
+  list.forEach(s => {
+    if (!s) return;
+    const opt = document.createElement("option");
+    opt.value = s.toLowerCase();
+    opt.textContent = s;
+    dd.appendChild(opt);
+  });
+}
+
+function runPipeline() {
+  const surveyor = document.getElementById("surveyorSelect").value;
+  const func = document.getElementById("functionSelect").value;
+  const tag = document.getElementById("tagFilterSelect").value;
+  const search = document.getElementById("searchInput").value.toLowerCase();
+
+  const filtered = allQuestions.filter((q, idx) => {
+    let ok = true;
+
+    if (surveyor !== "all")
+      ok = ok && q["Surveyor_Name"].toLowerCase().includes(surveyor);
+
+    if (func !== "all")
+      ok = ok && getGroup(q["Function_Number"]) === func;
+
+    if (search)
+      ok = ok && (q["Question"] + q["Expected_Answer"]).toLowerCase().includes(search);
+
+    if (tag !== "none") {
+      const id = idx + q["Question"];
+      ok = ok && tags[tag].has(id);
+    }
+
+    return ok;
+  });
+
+  render(filtered);
+}
+
+function render(list) {
+  document.getElementById("stats").textContent =
+    `Showing ${list.length} of ${allQuestions.length}`;
+
+  const html = list.map((q, i) => {
+    const id = i + q["Question"];
+    const group = getGroup(q["Function_Number"]);
+
+    return `
+      <div class="card">
+        <div class="meta-info">
+          <span>Q${i + 1}</span>
